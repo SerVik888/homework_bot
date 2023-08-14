@@ -1,14 +1,5 @@
+
 class EnvironmentVariableError(Exception):
-    pass
+    """Исключение при отсутствии одной из переменных окружения."""
 
-
-class StatusError(Exception):
-    pass
-
-
-class UnknownError(Exception):
-    pass
-
-
-class InvalidResponse(Exception):
     pass
