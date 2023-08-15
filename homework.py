@@ -14,10 +14,12 @@ from exception import BadRequest, MissingKeyInResponse, RequestError
 # ??? как настроить сортировку по pep8 в этом файле
 # ??? в папке через setup.cfg получается а в файле нет
 
+PATH_FOR_LOGS = os.path.dirname(os.path.abspath(__file__)) + '/logs/logs.log'
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 console_handler = logging.StreamHandler(sys.stdout)
-file_handler = logging.FileHandler('logs/logs.log', mode='a', encoding='utf-8')
+file_handler = logging.FileHandler(PATH_FOR_LOGS, mode='a', encoding='utf-8')
 formatter = logging.Formatter(
     '%(asctime)s '
     '%(filename)s/%(funcName)s/%(lineno)d '

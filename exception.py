@@ -1,10 +1,3 @@
-
-class EnvironmentVariableError(Exception):
-    """Исключение при отсутствии одной из переменных окружения."""
-
-    pass
-
-
 class RequestError(Exception):
     """Исключение при получении данных из эндпоинта."""
 
