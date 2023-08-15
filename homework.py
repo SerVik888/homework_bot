@@ -14,7 +14,7 @@ from exception import BadRequest, MissingKeyInResponse, RequestError
 # ??? как настроить сортировку по pep8 в этом файле
 # ??? в папке через setup.cfg получается а в файле нет
 
-PATH_FOR_LOGS = os.path.dirname(os.path.abspath(__file__)) + '/logs/logs.log'
+PATH_FOR_LOGS = os.path.dirname(os.path.abspath(__file__)) + '/logs.log'
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
