@@ -11,9 +11,6 @@ from requests import RequestException
 
 from exception import BadRequest, MissingKeyInResponse, RequestError
 
-# ??? как настроить сортировку по pep8 в этом файле
-# ??? в папке через setup.cfg получается а в файле нет
-
 PATH_FOR_LOGS = os.path.dirname(os.path.abspath(__file__)) + '/logs.log'
 
 logger = logging.getLogger(__name__)
@@ -82,19 +79,20 @@ def get_api_answer(timestamp):
     приведя его из формата JSON к типам данных Python.
     """
     request_data = {
+        'url': ENDPOINT,
         'headers': HEADERS,
         'params': {'from_date': timestamp}
     }
     logger.debug(
-        f'Начало отправки запроса к {ENDPOINT}, '
+        'Начало отправки запроса к {url}, '
         'c параметрами: {params}'
         .format(**request_data)
     )
     try:
-        response = requests.get(ENDPOINT, **request_data)
+        response = requests.get(**request_data)
     except RequestException:
         raise RequestError(
-            f'Ошибка при запросе к {ENDPOINT}, '
+            'Ошибка при запросе к {url}, '
             'c параметрами: {params}'.format(**request_data)
         )
 
@@ -124,7 +122,7 @@ def check_response(response):
             'Отсутствует ключ homeworks в ответе API.'
         )
     homeworks = response.get('homeworks')
-    if type(homeworks) is not list:
+    if not isinstance(homeworks, list):
         raise TypeError(
             'Тип данных в ответе не соответствует ожидаемому типу list'
         )
@@ -140,11 +138,18 @@ def parse_status(homework):
     В случае успеха, возвращаем подготовленную для отправки в Telegram строку,
     содержащую один из вердиктов словаря HOMEWORK_VERDICTS.
     """
+    if 'status' not in homework:
+        raise KeyError(
+            'Не найден ключ homework_name.'
+        )
+    if 'homework_name' not in homework:
+        raise KeyError(
+            'Не найден ключ homework_name.'
+        )
     if homework['status'] not in HOMEWORK_VERDICTS:
-        raise KeyError('Статус не найден.')
-    elif 'homework_name' not in homework:
-        raise KeyError('Не найден ключ homework_name.')
-
+        raise KeyError(
+            'Статус не найден.'
+        )
     homework_name = homework['homework_name']
     verdict = HOMEWORK_VERDICTS[homework['status']]
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
@@ -162,16 +167,15 @@ def main():
 
         try:
             response = get_api_answer(timestamp)
-            timestamp = response.get('current_date')
+            timestamp = response.get('current_date', timestamp)
             homeworks = check_response(response)
-            if len(homeworks) != 0:
-                message = parse_status(homeworks[0])
-                new_status = homeworks[0]['status']
+            if homeworks:
+                new_status = parse_status(homeworks[0])
             else:
                 new_status = ('Статус работые не изменился')
 
             if old_status != new_status:
-                send_message(bot, message)
+                send_message(bot, new_status)
                 old_status = new_status
             else:
                 logger.debug('Нет новых статусов')
@@ -180,11 +184,11 @@ def main():
             logger.error(error)
 
         except Exception as error:
-            message = f'Сбой в работе программы: {error}'
-            if old_status != message:
-                logger.error(message)
-                send_message(bot, message)
-                old_status = message
+            new_status = f'Сбой в работе программы: {error}'
+            if old_status != new_status:
+                logger.error(new_status)
+                send_message(bot, new_status)
+                old_status = new_status
 
         finally:
             time.sleep(RETRY_PERIOD)
