@@ -163,7 +163,6 @@ def main():
     new_status = ''
 
     while True:
-
         try:
             response = get_api_answer(timestamp)
             timestamp = response.get('current_date', timestamp)
